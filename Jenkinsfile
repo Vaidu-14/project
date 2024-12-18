@@ -1,47 +1,30 @@
-
-pipeline {
-agent {
-label {
-		label "built-in-project"
-		customWorkspace "/data/project-myapp"
-		
+pipeline{
+    agent{
+	label{
+	     label "built-in"
+		 customWorkspace "/root/project"
 		}
-		}
-		
-	stages {
-		
-		stage ('CLEAN_OLD_M2') {
-			
-			steps {
-				sh "rm -rf /home/saccount/.m2/repository"
-				
-			}
-			
-		}
-	
-		stage ('MAVEN_BUILD') {
-		
-			steps {
-						
-						sh "mvn clean package"
-			
-			}
-			
-		
-		}
-		
-		stage ('COPY_WAR_TO_Server'){
-		
-				steps {
-						
-						sh "scp -r target/LoginWebApp.war saccount@10.0.2.51:/data/project/wars"
-
-						}
-				
-				}
-	
-	
-	
 	}
-		
+	tools {
+	    maven "maven"
+	}
+	stages {
+	    stage ("clean repo") {
+		    steps {
+			    sh "rm -rf /root/.m2/repository"
+			}
+		}
+         
+        	stage ("clean mvn") {
+		    steps {
+			    sh "mvn clean install"
+			}
+		}
+
+            stage ("copy war") {
+		    steps {
+			    sh "cp /root/project/target/LoginWebApp.war /root/tomcat/webapps"
+			}
+		}	 
+	}
 }
